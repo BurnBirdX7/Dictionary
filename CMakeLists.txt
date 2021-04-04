@@ -3,7 +3,9 @@ project(Dictionary)
 
 set(CMAKE_CXX_STANDARD 17)
 
-if (QT6 EQUAL 1)
+option(USE_QT6 "Use Qt6 instead of Qt5" OFF)
+
+if (USE_QT6)
     message("Qt6 is used")
 
     set(QT_VERSION 6)
@@ -22,7 +24,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-add_executable(${PROJECT_NAME} main.cpp mainwindow.cpp mainwindow.hpp mainwindow.ui Dictionary.cpp Dictionary.hpp)
+add_executable(${PROJECT_NAME} main.cpp MainWindow.cpp MainWindow.hpp MainWindow.ui Dictionary.cpp Dictionary.hpp)
 
 if (NOT CMAKE_PREFIX_PATH)
     message(WARNING "CMAKE_PREFIX_PATH is not defined, you may need to set it "

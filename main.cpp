@@ -1,10 +1,12 @@
 #include <QApplication>
 #include <QPushButton>
 
-#include "mainwindow.hpp"
+#include "MainWindow.hpp"
 
 int main(int argc, char* argv[])
 {
+    qRegisterMetaType<Dictionary::State>("State");
+
     QApplication app(argc, argv);
 
     QString dictionaryFile;
