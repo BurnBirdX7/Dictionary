@@ -5,7 +5,6 @@
 #include <thread>
 #include <shared_mutex>
 #include <string>
-#include <chrono>
 
 #include <QObject>
 #include <QFile>
@@ -43,7 +42,8 @@ private:
     void subsequentSearch(const std::string& word);
 
     static void preQsBc(const std::string& needle, int qsBc[]);
-    bool QS(const std::string& needle, const std::string& haystack, const int qsBc[]);
+    static bool QS(const std::string& needle, const std::string& haystack, const int qsBc[]);
+    static bool SS(const std::string& needle, const std::string& haystack);
 
     const static size_t ASIZE = 256; // Alphabet's size | Assume ASCII
 

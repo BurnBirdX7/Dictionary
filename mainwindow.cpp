@@ -22,7 +22,11 @@ void MainWindow::on_searchButton_clicked()
     }
 
     this->clearResults();
-    auto type = Dictionary::SearchType::QUICK;
+    Dictionary::SearchType type;
+    if (mUi->subsequentCheckBox->checkState() == Qt::Checked)
+        type = Dictionary::SearchType::SUBSEQUENT;
+    else
+        type = Dictionary::SearchType::QUICK;
 
     emit search(text, type);
 }

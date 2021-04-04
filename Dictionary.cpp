@@ -55,16 +55,18 @@ void Dictionary::quickSearch(const std::string& needle)
 
     preQsBc(needle, qsBc);
 
-    for (const auto& dic_word : mDic) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    for (const auto& dic_word: mDic)
         if (QS(needle, dic_word.toStdString(), qsBc))
             emit wordFound(dic_word);
-    }
 }
 
-// x - pattern
-// m - length of pattern
-// qsBs - preprocessed table
+void Dictionary::subsequentSearch(const std::string& needle)
+{
+    for (const auto& dic_word: mDic)
+        if (SS(needle, dic_word.toStdString()))
+            emit wordFound(dic_word);
+}
+
 void Dictionary::preQsBc(const std::string& needle, int qsBc[]) {
     int m = needle.length();
     for (int i = 0; i < ASIZE; ++i)
@@ -73,22 +75,29 @@ void Dictionary::preQsBc(const std::string& needle, int qsBc[]) {
         qsBc[needle[i]] = m - i;
 }
 
-
 bool Dictionary::QS(const std::string& needle, const std::string& haystack, const int qsBc[]) {
-    /* Searching */
     int m = needle.length();
     int n = haystack.length();
-    int j = 0;
-    while (j <= n - m) {
+    for (int j = 0; j <= n - m; j += qsBc[haystack[j + m]])
         if (memcmp(needle.c_str(), haystack.c_str() + j, m) == 0)
             return true;
-        j += qsBc[haystack[j + m]];  // shift
-    }
 
     return false;
 }
 
-void Dictionary::subsequentSearch(const std::string& word)
+bool Dictionary::SS(const std::string& needle, const std::string& haystack)
 {
+    size_t m = needle.length();
+    if (haystack.length() < m)
+        return false;
 
+    size_t curr = 0;
+    for(const auto& ch: haystack) {
+        if (ch == needle[curr])
+            curr++;
+        if (curr == m)
+            return true;
+    }
+
+    return false;
 }
