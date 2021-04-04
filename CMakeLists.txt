@@ -2,13 +2,25 @@ cmake_minimum_required(VERSION 3.17)
 project(Dictionary)
 
 set(CMAKE_CXX_STANDARD 17)
+
+if (QT6 EQUAL 1)
+    message("Qt6 is used")
+
+    set(QT_VERSION 6)
+    set(REQUIRED_LIBS Core Gui Widgets)
+    set(REQUIRED_LIBS_QUALIFIED Qt6::Core Qt6::Gui Qt6::Widgets)
+else()
+    message("Qt5 is used")
+
+    set(QT_VERSION 5)
+    set(REQUIRED_LIBS Core Gui Widgets)
+    set(REQUIRED_LIBS_QUALIFIED Qt5::Core Qt5::Gui Qt5::Widgets)
+endif()
+
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-
-set(QT_VERSION 6)
-set(REQUIRED_LIBS Core Gui Widgets)
-set(REQUIRED_LIBS_QUALIFIED Qt6::Core Qt6::Gui Qt6::Widgets)
 
 add_executable(${PROJECT_NAME} main.cpp mainwindow.cpp mainwindow.hpp mainwindow.ui Dictionary.cpp Dictionary.hpp)
 
@@ -47,3 +59,5 @@ if (WIN32)
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     endforeach (QT_LIB)
 endif ()
+
+
