@@ -9,8 +9,6 @@
 #include <QObject>
 #include <QFile>
 #include <QTextStream>
-#include <QMessageBox>
-#include <QDebug>
 
 
 class Dictionary
@@ -26,20 +24,17 @@ public:
         QUICK, SUBSEQUENT
     };
 
-    explicit Dictionary(const QString& sourceFile, QObject* parent = nullptr);
+    explicit Dictionary(QObject* parent = nullptr);
 
 public slots:
-    void search(const QString& word, SearchType type = SearchType::QUICK);
+    virtual void search(const QString& word, SearchType type) = 0;
 
 signals:
     void stateChanged(State);
     void wordFound(QString);
 
-private:
+protected:
     void changeState(State newState);
-
-    void quickSearch(const std::string& word);
-    void subsequentSearch(const std::string& word);
 
     static void preQsBc(const std::string& needle, int qsBc[]);
     static bool QS(const std::string& needle, const std::string& haystack, const int qsBc[]);
@@ -47,11 +42,9 @@ private:
 
     const static size_t ASIZE = 256; // Alphabet's size | Assume ASCII
 
-private:
+protected: // fields
     State mState;
     std::shared_mutex mStateMutex;
-
-    QStringList mDic;
 };
 
 

@@ -24,7 +24,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-add_executable(${PROJECT_NAME} main.cpp MainWindow.cpp MainWindow.hpp MainWindow.ui Dictionary.cpp Dictionary.hpp)
+add_executable(${PROJECT_NAME} main.cpp MainWindow.cpp MainWindow.hpp MainWindow.ui Dictionary.cpp Dictionary.hpp MemDictionary.cpp MemDictionary.hpp)
 
 if (NOT CMAKE_PREFIX_PATH)
     message(WARNING "CMAKE_PREFIX_PATH is not defined, you may need to set it "
