@@ -33,9 +33,12 @@ to build the project.
 ## Configuration
 To run the program execute the command:
 ```shell
-./Dictionary [dictionary_file]
+./Dictionary [--dont_store] [dictionary_file]
 ```
-If `[dictionary_file]` is not specified then the program will try to open `./words.txt` file.
+If `--dont_store` argument is present then the application doesn't store the dictionary in memory
+and reads it from file for each search.\
+If `dictionary_file` is not specified then the program will try to open `./words.txt` file.\
+Order of arguments is important.\
 [This file](https://raw.githubusercontent.com/dwyl/english-words/master/words.txt) was used in tests.
 
 ## Tested
@@ -44,3 +47,4 @@ If `[dictionary_file]` is not specified then the program will try to open `./wor
   * with Qt 5, if Qt installed with `apt` manager (`sudo apt install qt5-default`)
     
 ## Algorithm
+The program uses the simplified Boyer-Moore-Horspool algorithm for substring detection.

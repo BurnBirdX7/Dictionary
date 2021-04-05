@@ -3,6 +3,7 @@
 
 #include "MainWindow.hpp"
 #include "MemDictionary.hpp"
+#include "FileDictionary.hpp"
 
 struct Args{
     bool do_not_store = false;
@@ -16,14 +17,12 @@ struct Args{
         switch (size) {
         case 1:
             break;
-
         case 2:
             if (list.at(1) == "--dont_store")
                 do_not_store = true;
-            else
+            else // if isn't "dont_store", try as dictionary name
                 dictionary_path = list.at(1);
             break;
-
         case 3:
             if (list.at(1) == "--dont_store")
                 do_not_store = true;
@@ -31,7 +30,6 @@ struct Args{
                 throw std::runtime_error("Unknown argument");
             dictionary_path = list.at(2);
             break;
-
         default:
             throw std::runtime_error("Incorrect number of arguments");
         }
@@ -45,30 +43,26 @@ int main(int argc, char* argv[])
 
     QApplication app(argc, argv);
 
-    MainWindow* mw;
     Dictionary* dic;
-
     try {
         Args args;
         args.load();
 
-        mw = new MainWindow();
-
         if (!args.do_not_store)
             dic = new MemDictionary(args.dictionary_path);
         else
-            dic = new MemDictionary(args.dictionary_path); // TODO: Change to FileDictionary
-        }
+            dic = new FileDictionary(args.dictionary_path);
+    }
     catch (std::runtime_error& error) {
         QMessageBox::critical(nullptr, "Exception was thrown", error.what());
-        return 0;
+        return -1;
     }
 
+    auto* mw = new MainWindow();
     QObject::connect(dic, &Dictionary::stateChanged, mw, &MainWindow::searchStateChanged);
     QObject::connect(dic, &Dictionary::wordFound, mw, &MainWindow::addResultEntry);
     QObject::connect(mw, &MainWindow::search, dic, &Dictionary::search);
 
     mw->show();
-
     return QApplication::exec();
 }
