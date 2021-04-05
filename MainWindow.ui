@@ -41,7 +41,7 @@
       <item>
        <widget class="QCheckBox" name="subsequentCheckBox">
         <property name="text">
-         <string>Subsquent Search</string>
+         <string>Subsequent Character Search</string>
         </property>
        </widget>
       </item>

@@ -43,8 +43,14 @@ void MainWindow::clearResults()
 
 void MainWindow::searchStateChanged(Dictionary::State newState)
 {
-    if (newState == Dictionary::State::SEARCH)
+    if (newState == Dictionary::State::SEARCH) {
+        mUi->searchButton->setEnabled(false);
+        mUi->subsequentCheckBox->setEnabled(false);
         mUi->statusbar->showMessage("Searching...");
-    else
+    }
+    else {
+        mUi->searchButton->setEnabled(true);
+        mUi->subsequentCheckBox->setEnabled(true);
         mUi->statusbar->showMessage("Done.");
+    }
 }
