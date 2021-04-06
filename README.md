@@ -46,4 +46,4 @@ The order of arguments is important.\
   * with Qt 5, if Qt installed with `apt` manager (`sudo apt install qt5-default`)
 
 ## Algorithm
-The program uses a simplified version of the Boyer-Moore-Horspool algorithm for substring detection.
+The program uses a simplified version of ~~the Boyer-Moore-Horspool algorithm~~ **the Quick search algorithm** for substring detection.
