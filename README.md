@@ -41,9 +41,12 @@ The order of arguments is important.\
 [This file](https://raw.githubusercontent.com/dwyl/english-words/master/words.txt) was used in tests.
 
 ### Tested
-* on Windows 10 with Qt 5.15.2 and Qt 6.0.3
+* on Windows 10, MSVC 2019, with Qt 5.15.2 and Qt 6.0.3
+<!--
 * on Ubuntu 20.04 with Qt 6.0.3
-  * with Qt 5, if Qt installed with `apt` manager (`sudo apt install qt5-default`)
+  * with Qt 5, if Qt installed with `apt` manager (`sudo apt install qt5-default`))
+-->
+  
 
 ## Algorithm
 The program uses a simplified version of ~~the Boyer-Moore-Horspool algorithm~~ **the Quick search algorithm** for substring detection.

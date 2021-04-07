@@ -1,16 +1,17 @@
 #include <QApplication>
-#include <QThread>
 #include <QMessageBox>
 
 #include "MainWindow.hpp"
 #include "MemDictionary.hpp"
 #include "FileDictionary.hpp"
 
-struct Args{
-    bool do_not_store = false;
-    QString dictionary_path = "words.txt";
+struct AppArguments{
+    bool do_not_store;
+    QString dictionary_path;
 
-    inline void load()
+    inline AppArguments()
+        : do_not_store(false)
+        , dictionary_path("words.txt")
     {
         auto list = QApplication::arguments();
         size_t size = list.size();
@@ -40,45 +41,28 @@ struct Args{
 
 int main(int argc, char* argv[])
 {
+    QApplication app(argc, argv);
+
     qRegisterMetaType<Dictionary::State>("State");
     qRegisterMetaType<Dictionary::SearchType>("Dictionary::SearchType");
 
-    QApplication app(argc, argv);
-
-    Dictionary* dic;
+    // Dictionary
+    Dictionary* dictionary;
     try {
-        Args args;
-        args.load();
+        AppArguments args;
 
-        if (!args.do_not_store)
-            dic = new MemDictionary(args.dictionary_path);
+        if (args.do_not_store)
+            dictionary = new FileDictionary(args.dictionary_path);
         else
-            dic = new FileDictionary(args.dictionary_path);
+            dictionary = new MemDictionary(args.dictionary_path);
     }
     catch (std::runtime_error& error) {
         QMessageBox::critical(nullptr, "Exception was thrown", error.what());
         return -1;
     }
 
-    QThread dictionaryThread;
-    dic->moveToThread(&dictionaryThread);
-    QObject::connect(&dictionaryThread, &QThread::finished, dic, &QObject::deleteLater);
+    auto* mainWindow = new MainWindow(dictionary);
+    mainWindow->show();
 
-    // dic -> main window
-    auto* mw = new MainWindow();
-    QObject::connect(dic, &Dictionary::stateChanged, mw, &MainWindow::searchStateChanged);
-    QObject::connect(dic, &Dictionary::wordFound, mw, &MainWindow::addResultEntry);
-
-    // main window -> dic
-    QObject::connect(mw, &MainWindow::search, dic, &Dictionary::search);
-
-    dictionaryThread.start();
-    mw->show();
-
-    auto ret = QApplication::exec();
-
-    dictionaryThread.quit();
-    dictionaryThread.wait();
-
-    return ret;
+    return QApplication::exec();
 }

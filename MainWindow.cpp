@@ -1,16 +1,27 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-MainWindow::MainWindow(QWidget* parent)
+MainWindow::MainWindow(Dictionary* dictionary, QWidget* parent)
         : QMainWindow(parent)
         , mUi(new Ui::MainWindow)
+        , mDictionaryThread(this)
 {
     mUi->setupUi(this);
+    dictionary->moveToThread(&mDictionaryThread);
+    connect(&mDictionaryThread, &QThread::finished, dictionary, &QObject::deleteLater);
+
+    connect(dictionary, &Dictionary::stateChanged, this, &MainWindow::searchStateChanged);
+    connect(dictionary, &Dictionary::wordFound, this, &MainWindow::addResultEntry);
+    connect(this, &MainWindow::search, dictionary, &Dictionary::search);
+
+    mDictionaryThread.start();
 }
 
 MainWindow::~MainWindow()
 {
     delete mUi;
+    mDictionaryThread.quit();
+    mDictionaryThread.wait();
 }
 
 void MainWindow::on_searchButton_clicked()

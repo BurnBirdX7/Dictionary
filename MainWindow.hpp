@@ -2,6 +2,7 @@
 #define DICTIONARY_MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include <QThread>
 
 #include "Dictionary.hpp"
 
@@ -15,7 +16,7 @@ class MainWindow
 Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget* parent = nullptr);
+    explicit MainWindow(Dictionary* dictionary, QWidget* parent = nullptr);
 
     ~MainWindow() override;
 
@@ -32,6 +33,7 @@ signals:
 
 private:
     Ui::MainWindow* mUi;
+    QThread mDictionaryThread;
 
 };
 
