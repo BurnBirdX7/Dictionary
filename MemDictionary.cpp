@@ -1,7 +1,3 @@
-//
-// Created by artem on 05.04.2021.
-//
-
 #include "MemDictionary.hpp"
 
 MemDictionary::MemDictionary(const QString& sourceFile, QObject* parent)
@@ -40,14 +36,18 @@ void MemDictionary::quickSearch(const std::string& needle)
     int qsBc[ASIZE];
     preQsBc(needle, qsBc);
 
-    for (const auto& dic_word: mDic)
-        if (QS(needle, dic_word.toStdString(), qsBc))
-                emit wordFound(dic_word);
+    for (const auto& word: mDic)
+        if (QS(needle, word.toStdString(), qsBc))
+            emitEntry(word);
+
+    emitLastEntries();
 }
 
 void MemDictionary::subsequentSearch(const std::string& needle)
 {
-    for (const auto& dic_word: mDic)
-        if (SS(needle, dic_word.toStdString()))
-                emit wordFound(dic_word);
+    for (const auto& word: mDic)
+        if (SS(needle, word.toStdString()))
+            emitEntry(word);
+
+    emitLastEntries();
 }

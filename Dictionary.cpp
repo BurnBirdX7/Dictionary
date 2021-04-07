@@ -47,3 +47,34 @@ bool Dictionary::SS(const std::string& needle, const std::string& haystack)
 
     return false;
 }
+
+void Dictionary::emitEntry(const QString& entry)
+{
+    static auto ts1 = std::chrono::steady_clock::now();
+
+    mBuffer.push_back(entry);
+
+    if (std::chrono::steady_clock::now() - ts1 > RESULT_EMISSION_DELAY) {
+        QString blob = mBuffer.front();
+
+        for (auto it = ++mBuffer.begin(); it != mBuffer.end(); ++it)
+            blob += "\n" + *it;
+
+        emit wordFound(blob);
+        mBuffer.clear();
+        ts1 = std::chrono::steady_clock::now();
+    }
+
+}
+
+void Dictionary::emitLastEntries()
+{
+    if (!mBuffer.empty()) {
+        QString blob = mBuffer.front();
+        for (auto it = ++mBuffer.begin(); it != mBuffer.end(); ++it)
+            blob += "\n" + *it;
+
+        emit wordFound(blob);
+        mBuffer.clear();
+    }
+}

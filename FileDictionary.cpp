@@ -40,17 +40,21 @@ void FileDictionary::quickSearch(const std::string& needle, QTextStream& stream)
     preQsBc(needle, qsBc);
 
     while (!stream.atEnd()) {
-        auto dic_word = stream.readLine();
-        if (QS(needle, dic_word.toStdString(), qsBc))
-                emit wordFound(dic_word);
+        auto word = stream.readLine();
+        if (QS(needle, word.toStdString(), qsBc))
+            emitEntry(word);
     }
+
+    emitLastEntries();
 }
 
 void FileDictionary::subsequentSearch(const std::string& needle, QTextStream& stream)
 {
     while (!stream.atEnd()) {
-        auto dic_word = stream.readLine();
-        if (SS(needle, dic_word.toStdString()))
-                emit wordFound(dic_word);
+        auto word = stream.readLine();
+        if (SS(needle, word.toStdString()))
+            emitEntry(word);
     }
+
+    emitLastEntries();
 }
