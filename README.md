@@ -32,20 +32,18 @@ to build the project.
 ## Run the app
 To run the program execute the command:
 ```shell
-./Dictionary [--dont_store] [dictionary_file]
+./Dictionary [--dont-store] [dictionary file]
 ```
-If the `--dont_store` argument is present then the application doesn't store the dictionary in memory
+If the `--dont-store` argument is present then the application doesn't store the dictionary in memory
 and reads it from file for each search.\
-If `dictionary_file` is not specified then the program will try to open the `./words.txt` file.\
+If `dictionary file` is not specified then the program will try to open the `./words.txt` file.\
 The order of arguments is important.\
 [This file](https://raw.githubusercontent.com/dwyl/english-words/master/words.txt) was used in tests.
 
 ### Tested
 * on Windows 10, MSVC 2019, with Qt 5.15.2 and Qt 6.0.3
-<!--
-* on Ubuntu 20.04 with Qt 6.0.3
-  * with Qt 5, if Qt installed with `apt` manager (`sudo apt install qt5-default`))
--->
+* on Ubuntu 20.04, g++ 9.3.0, with Qt 6.0.3
+  * with Qt 5, if Qt installed via `apt`
   
 
 ## Algorithm

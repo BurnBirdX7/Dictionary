@@ -6,6 +6,8 @@
 #include "FileDictionary.hpp"
 
 struct AppArguments{
+    static constexpr const char* DONT_STORE_OPT = "--dont-store";
+
     bool do_not_store;
     QString dictionary_path;
 
@@ -13,6 +15,7 @@ struct AppArguments{
         : do_not_store(false)
         , dictionary_path("words.txt")
     {
+
         auto list = QApplication::arguments();
         size_t size = list.size();
 
@@ -20,13 +23,13 @@ struct AppArguments{
         case 1:
             break;
         case 2:
-            if (list.at(1) == "--dont_store")
+            if (list.at(1) == DONT_STORE_OPT)
                 do_not_store = true;
             else // if isn't "dont_store", try as dictionary name
                 dictionary_path = list.at(1);
             break;
         case 3:
-            if (list.at(1) == "--dont_store")
+            if (list.at(1) == DONT_STORE_OPT)
                 do_not_store = true;
             else
                 throw std::runtime_error("Unknown argument");
