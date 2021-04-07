@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QThread>
 #include <QMessageBox>
 
 #include "MainWindow.hpp"
@@ -40,6 +41,7 @@ struct Args{
 int main(int argc, char* argv[])
 {
     qRegisterMetaType<Dictionary::State>("State");
+    qRegisterMetaType<Dictionary::SearchType>("Dictionary::SearchType");
 
     QApplication app(argc, argv);
 
@@ -58,11 +60,25 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    QThread dictionaryThread;
+    dic->moveToThread(&dictionaryThread);
+    QObject::connect(&dictionaryThread, &QThread::finished, dic, &QObject::deleteLater);
+
+    // dic -> main window
     auto* mw = new MainWindow();
     QObject::connect(dic, &Dictionary::stateChanged, mw, &MainWindow::searchStateChanged);
     QObject::connect(dic, &Dictionary::wordFound, mw, &MainWindow::addResultEntry);
+
+    // main window -> dic
     QObject::connect(mw, &MainWindow::search, dic, &Dictionary::search);
 
+    dictionaryThread.start();
     mw->show();
-    return QApplication::exec();
+
+    auto ret = QApplication::exec();
+
+    dictionaryThread.quit();
+    dictionaryThread.wait();
+
+    return ret;
 }

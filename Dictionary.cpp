@@ -7,7 +7,6 @@ Dictionary::Dictionary(QObject* parent)
 
 void Dictionary::changeState(Dictionary::State newState)
 {
-    std::unique_lock<std::shared_mutex> lock(this->mStateMutex);
     if(mState != newState) {
         mState = newState;
         emit stateChanged(newState);

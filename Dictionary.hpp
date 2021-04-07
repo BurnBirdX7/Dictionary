@@ -2,8 +2,7 @@
 #define DICTIONARY_DICTIONARY_HPP
 
 #include <stdexcept>
-#include <thread>
-#include <shared_mutex>
+#include <atomic>
 #include <string>
 
 #include <QObject>
@@ -17,10 +16,10 @@ class Dictionary
 Q_OBJECT
 
 public:
-    enum class State {
+    enum class State : char {
         SEARCH, DONE
     };
-    enum class SearchType {
+    enum class SearchType : char {
         QUICK, SUBSEQUENT
     };
 
@@ -43,8 +42,8 @@ protected:
     const static size_t ASIZE = 256; // Alphabet's size | Assume ASCII
 
 protected: // fields
-    State mState;
-    std::shared_mutex mStateMutex;
+    std::atomic<State> mState;
+
 };
 
 

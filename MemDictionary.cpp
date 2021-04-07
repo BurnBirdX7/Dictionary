@@ -15,32 +15,24 @@ MemDictionary::MemDictionary(const QString& sourceFile, QObject* parent)
         throw std::runtime_error("Cannot open the dictionary");
 
     QTextStream in(&file);
-
     while(!in.atEnd())
         mDic.append(in.readLine());
 }
 
 void MemDictionary::search(const QString& word, Dictionary::SearchType type)
 {
-    std::shared_lock<std::shared_mutex> lock(this->mStateMutex);
     if (mState == State::SEARCH)
         return;
 
-    std::thread searchThread(
-            [this, word, type]() {
-                changeState(State::SEARCH);
+    changeState(State::SEARCH);
 
-                auto std_word = word.toStdString();
-                if (type == SearchType::QUICK)
-                    quickSearch(std_word);
-                else
-                    subsequentSearch(std_word);
+    auto std_word = word.toStdString();
+    if (type == SearchType::QUICK)
+        quickSearch(std_word);
+    else
+        subsequentSearch(std_word);
 
-                changeState(State::DONE);
-            }
-    );
-
-    searchThread.detach();
+    changeState(State::DONE);
 }
 
 void MemDictionary::quickSearch(const std::string& needle)

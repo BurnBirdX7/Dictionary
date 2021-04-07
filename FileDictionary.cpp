@@ -11,7 +11,6 @@ FileDictionary::FileDictionary(const QString& sourceFile, QObject* parent)
 
 void FileDictionary::search(const QString& word, Dictionary::SearchType type)
 {
-    std::shared_lock<std::shared_mutex> lock(this->mStateMutex);
     if (mState == State::SEARCH)
         return;
 
@@ -22,24 +21,17 @@ void FileDictionary::search(const QString& word, Dictionary::SearchType type)
         return;
     }
 
+    changeState(State::SEARCH);
+    QTextStream stream(&mFile);
 
-    std::thread searchThread(
-            [this, word, type]() {
-                changeState(State::SEARCH);
-                QTextStream stream(&mFile);
+    auto std_word = word.toStdString();
+    if (type == SearchType::QUICK)
+        quickSearch(std_word, stream);
+    else
+        subsequentSearch(std_word, stream);
 
-                auto std_word = word.toStdString();
-                if (type == SearchType::QUICK)
-                    quickSearch(std_word, stream);
-                else
-                    subsequentSearch(std_word, stream);
-
-                mFile.close();
-                changeState(State::DONE);
-            }
-    );
-
-    searchThread.detach();
+    mFile.close();
+    changeState(State::DONE);
 }
 
 void FileDictionary::quickSearch(const std::string& needle, QTextStream& stream)
