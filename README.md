@@ -47,4 +47,23 @@ The order of arguments is important.\
   
 
 ## Algorithm
-The program uses a simplified version of ~~the Boyer-Moore-Horspool algorithm~~ **the Quick search algorithm** for substring detection.
+The program uses a simplified version of ~~the Boyer-Moore-Horspool algorithm~~ **the Quick search algorithm**
+  for substring detection.
+
+*m - size of substring (needle), n - size of a string (haystack), s - size of an alphabet.*
+ * The algorithm requires preprocessing, with time complexity of *O(m + s)*.
+   We need to execute preprocessing for each new *needle*.
+ * The algorithm itself has time complexity of *O(mn)*.
+
+We assume ASCII alphabet, so *s = 256*.
+
+Algorithm has some simplifications:
+ * Search runs for **one line**, not the full text
+ * When one entry is found, the search stops
+
+In source code: preprocessing - `Dictionary::preQsBc`, search - `Dictionary::QS`
+
+### Search of sequential characters (optional)
+This search algorithm does not require preprocessing and it's time complexity is *O(n)*
+
+In source code: search - `Dictionary::SS`

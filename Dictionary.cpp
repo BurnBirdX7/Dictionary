@@ -25,7 +25,7 @@ bool Dictionary::QS(const std::string& needle, const std::string& haystack, cons
     int m = needle.length();
     int n = haystack.length();
     for (int j = 0; j <= n - m; j += qsBc[haystack[j + m]])
-        if (memcmp(needle.c_str(), haystack.c_str() + j, m) == 0)
+        if (haystack.compare(j, m, needle) == 0)
             return true;
 
     return false;
@@ -38,11 +38,10 @@ bool Dictionary::SS(const std::string& needle, const std::string& haystack)
         return false;
 
     size_t curr = 0;
-    for(const auto& ch: haystack) {
+    for(char ch: haystack) {
         if (ch == needle[curr])
-            curr++;
-        if (curr == m)
-            return true;
+            if (++curr == m)
+                return true;
     }
 
     return false;
