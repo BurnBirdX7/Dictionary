@@ -30,7 +30,7 @@ void Dictionary::changeState(Dictionary::State newState)
 }
 
 void Dictionary::preQsBc(const std::string& needle, int qsBc[]) {
-    int m = needle.length();
+    int m = static_cast<int>(needle.length());
     for (int i = 0; i < ASIZE; ++i)
         qsBc[i] = m + 1;
     for (int i = 0; i < m; ++i)
@@ -38,9 +38,9 @@ void Dictionary::preQsBc(const std::string& needle, int qsBc[]) {
 }
 
 bool Dictionary::QS(const std::string& needle, const std::string& haystack, const int qsBc[]) {
-    int m = needle.length();
-    int n = haystack.length();
-    for (int j = 0; j <= n - m; j += qsBc[haystack[j + m]])
+    int m = static_cast<int>(needle.length());
+    int n = static_cast<int>(haystack.length());
+    for (int j = 0; j <= n - m; j += qsBc[static_cast<unsigned char>(haystack[j + m])])
         if (haystack.compare(j, m, needle) == 0)
             return true;
 
@@ -67,7 +67,7 @@ void Dictionary::emitEntry(const std::string& entry)
 {
     static auto ts1 = std::chrono::steady_clock::now();
 
-    mBuffer.push_back(QString::fromLocal8Bit(entry.c_str()));
+    mBuffer.push_back(QString::fromStdString(entry));
 
     if (std::chrono::steady_clock::now() - ts1 > RESULT_EMISSION_DELAY) {
         QString blob = mBuffer.front();
