@@ -8,7 +8,10 @@ MainWindow::MainWindow(Dictionary* dictionary, QWidget* parent)
         , mDictionaryThread(this)
 {
     mUi->setupUi(this);
-    connect(mUi->searchButton, &QPushButton::clicked, this, &MainWindow::onSearchButtonClicked);
+    connect(mUi->inputEdit, &QLineEdit::textEdited, this, &MainWindow::initiateSearch);
+    connect(mUi->subsequentCheckBox, &QCheckBox::stateChanged, this, [this](int) {
+        this->initiateSearch(this->mUi->inputEdit->text());
+    } );
 
     mDictionary->moveToThread(&mDictionaryThread);
     connect(&mDictionaryThread, &QThread::finished, mDictionary, &QObject::deleteLater);
@@ -27,11 +30,12 @@ MainWindow::~MainWindow()
     mDictionaryThread.wait();
 }
 
-void MainWindow::onSearchButtonClicked()
+void MainWindow::initiateSearch(QString searchLine)
 {
-    auto text = mUi->inputEdit->text();
-    if (text.isEmpty()) {
+    if (searchLine.isEmpty()) {
+        mDictionary->getNewSeed(); // Cancel last search
         mUi->statusbar->showMessage(QStringLiteral("Input field is empty!"));
+        mUi->resultEdit->clear();
         return;
     }
 
@@ -42,7 +46,7 @@ void MainWindow::onSearchButtonClicked()
     else
         type = Dictionary::SearchType::QUICK;
 
-    emit search(text, type, mDictionary->getNewSeed());
+    emit search(searchLine, type, mDictionary->getNewSeed());
 }
 
 void MainWindow::addResultEntry(const QString& entry)
@@ -58,12 +62,10 @@ void MainWindow::clearResults()
 void MainWindow::searchStateChanged(Dictionary::State newState)
 {
     if (newState == Dictionary::State::SEARCH) {
-        mUi->searchButton->setEnabled(false);
         mUi->subsequentCheckBox->setEnabled(false);
         mUi->statusbar->showMessage("Searching...");
     }
     else {
-        mUi->searchButton->setEnabled(true);
         mUi->subsequentCheckBox->setEnabled(true);
         mUi->statusbar->showMessage("Done.");
     }

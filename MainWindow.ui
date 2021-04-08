@@ -32,13 +32,6 @@
     <item>
      <layout class="QHBoxLayout" name="InputLayout">
       <item>
-       <widget class="QPushButton" name="searchButton">
-        <property name="text">
-         <string>Search &gt;&gt;&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="subsequentCheckBox">
         <property name="text">
          <string>Subsequent Character Search</string>

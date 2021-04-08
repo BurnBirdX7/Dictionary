@@ -21,7 +21,7 @@ public:
     ~MainWindow() override;
 
 public slots:
-    void onSearchButtonClicked();
+    void initiateSearch(QString searchLine);
 
     void addResultEntry(const QString& entry);
     void clearResults();

@@ -55,7 +55,7 @@ The program uses a simplified version of ~~the Boyer-Moore-Horspool algorithm~~ 
    We need to execute preprocessing for each new *needle*.
  * The algorithm itself has time complexity of *O(mn)*.
 
-We assume ASCII alphabet, so *s = 256*.
+Each character is a byte, encoding doesn't matter, s = 2^8 = 256.
 
 Algorithm has some simplifications:
  * Search runs for **one line**, not the full text

@@ -14,6 +14,10 @@ int Dictionary::getNewSeed()
 
 void Dictionary::search(const QString& needle, Dictionary::SearchType type, int seed)
 {
+    QEventLoop loop; // Wait some time before starting
+    QTimer::singleShot(100, &loop, &QEventLoop::quit);
+    loop.exec();
+
     if (mSeed.load() != seed)
         return; // If seed was reassigned, cancel search
 

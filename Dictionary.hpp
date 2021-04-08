@@ -7,6 +7,8 @@
 #include <list>
 
 #include <QObject>
+#include <QTimer>
+#include <QEventLoop>
 
 // Dictionary is a thread worker
 // It's search() slot can be called multiple times from multiple threads,
