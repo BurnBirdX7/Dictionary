@@ -2,59 +2,61 @@
 
 FileDictionary::FileDictionary(const QString& sourceFile, QObject* parent)
     : Dictionary(parent)
-    , mFile(sourceFile)
+    , mPath(sourceFile.toStdString())
 {
-    if (!mFile.exists())
-        throw std::runtime_error("Specified dictionary file does not exist");
+    if (!std::filesystem::is_regular_file(mPath))
+        throw std::runtime_error(FILE_IS_NOT_REGULAR + mPath.generic_string());
 }
 
-
-void FileDictionary::search(const QString& word, Dictionary::SearchType type)
+void FileDictionary::quickSearch(const std::string& needle)
 {
-    if (mState == State::SEARCH)
-        return;
-
-    if (!mFile.open(QIODevice::ReadOnly)) {
-        QMessageBox::critical(nullptr,
-                              "Critical Error!",
-                              QStringLiteral("Could not open the dictionary file: ") + mFile.fileName());
+    if (!openStream()) {
+        showCantOpenError();
         return;
     }
 
-    changeState(State::SEARCH);
-    QTextStream stream(&mFile);
-
-    auto std_word = word.toStdString();
-    if (type == SearchType::QUICK)
-        quickSearch(std_word, stream);
-    else
-        subsequentSearch(std_word, stream);
-
-    mFile.close();
-    changeState(State::DONE);
-}
-
-void FileDictionary::quickSearch(const std::string& needle, QTextStream& stream)
-{
     int qsBc[ASIZE];
     preQsBc(needle, qsBc);
 
-    while (!stream.atEnd()) {
-        auto word = stream.readLine();
-        if (QS(needle, word.toStdString(), qsBc))
+    std::string word;
+    while (!mStream.eof()) {
+        std::getline(mStream, word);
+        if (QS(needle, word, qsBc))
             emitEntry(word);
     }
+    mStream.close();
 
     emitLastEntries();
 }
 
-void FileDictionary::subsequentSearch(const std::string& needle, QTextStream& stream)
+void FileDictionary::subsequentSearch(const std::string& needle)
 {
-    while (!stream.atEnd()) {
-        auto word = stream.readLine();
-        if (SS(needle, word.toStdString()))
-            emitEntry(word);
+    if (!openStream()) {
+        showCantOpenError();
+        return;
     }
 
+    std::string word;
+    while (!mStream.eof()) {
+        std::getline(mStream, word);
+        if (SS(needle, word))
+            emitEntry(word);
+    }
+    mStream.close();
+
     emitLastEntries();
+}
+
+bool FileDictionary::openStream()
+{
+    mStream.open(mPath);
+    return mStream.good();
+}
+
+void FileDictionary::showCantOpenError() const
+{
+    QMessageBox::critical(nullptr,
+                          QStringLiteral("Critical Error!"),
+                          "Could not open the dictionary file: " +
+                          QString::fromStdString(mPath.generic_string()));
 }

@@ -4,31 +4,19 @@ MemDictionary::MemDictionary(const QString& sourceFile, QObject* parent)
         : Dictionary(parent)
         , mDic()
 {
-    QFile file(sourceFile);
-    if (!file.exists())
-        throw std::runtime_error("Specified dictionary file does not exist");
-    if (!file.open(QIODevice::ReadOnly))
-        throw std::runtime_error("Cannot open the dictionary");
+    std::filesystem::path path(sourceFile.toStdString());
+    if (!std::filesystem::is_regular_file(path))
+        throw std::runtime_error(FILE_IS_NOT_REGULAR + path.generic_string());
+    std::ifstream stream(path);
+    if (!stream.good())
+        throw std::runtime_error("Cannot read the dictionary: " + path.generic_string());
 
-    QTextStream in(&file);
-    while(!in.atEnd())
-        mDic.append(in.readLine());
-}
-
-void MemDictionary::search(const QString& word, Dictionary::SearchType type)
-{
-    if (mState == State::SEARCH)
-        return;
-
-    changeState(State::SEARCH);
-
-    auto std_word = word.toStdString();
-    if (type == SearchType::QUICK)
-        quickSearch(std_word);
-    else
-        subsequentSearch(std_word);
-
-    changeState(State::DONE);
+    std::string line;
+    while(!stream.eof()) {
+        std::getline(stream, line);
+        mDic.push_back(line);
+    }
+    stream.close();
 }
 
 void MemDictionary::quickSearch(const std::string& needle)
@@ -37,7 +25,7 @@ void MemDictionary::quickSearch(const std::string& needle)
     preQsBc(needle, qsBc);
 
     for (const auto& word: mDic)
-        if (QS(needle, word.toStdString(), qsBc))
+        if (QS(needle, word, qsBc))
             emitEntry(word);
 
     emitLastEntries();
@@ -46,7 +34,7 @@ void MemDictionary::quickSearch(const std::string& needle)
 void MemDictionary::subsequentSearch(const std::string& needle)
 {
     for (const auto& word: mDic)
-        if (SS(needle, word.toStdString()))
+        if (SS(needle, word))
             emitEntry(word);
 
     emitLastEntries();

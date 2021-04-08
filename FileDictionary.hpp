@@ -5,6 +5,8 @@
 
 #include <QMessageBox>
 
+#include <filesystem>
+#include <fstream>
 
 class FileDictionary
         : public Dictionary
@@ -14,14 +16,16 @@ Q_OBJECT
 public:
     explicit FileDictionary(const QString& sourceFile, QObject* parent = nullptr);
 
-public slots:
-    void search(const QString& word, SearchType type) override;
-
 private:
-    void quickSearch(const std::string& needle, QTextStream& stream);
-    void subsequentSearch(const std::string& needle, QTextStream& stream);
+    void quickSearch(const std::string& needle) override;
+    void subsequentSearch(const std::string& needle) override;
 
-    QFile mFile;
+    bool openStream();
+
+    void showCantOpenError() const;
+
+    std::filesystem::path mPath;
+    std::ifstream mStream;
 };
 
 

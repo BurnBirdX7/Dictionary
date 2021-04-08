@@ -7,8 +7,6 @@
 #include <list>
 
 #include <QObject>
-#include <QFile>
-#include <QTextStream>
 
 
 class Dictionary
@@ -27,9 +25,11 @@ public:
     explicit Dictionary(QObject* parent = nullptr);
 
     constexpr static auto RESULT_EMISSION_DELAY = std::chrono::milliseconds(100);
+    constexpr static auto FILE_IS_NOT_REGULAR = "Specified dictionary file does not exist or "
+                                                "not a regular file: ";
 
 public slots:
-    virtual void search(const QString& word, SearchType type) = 0;
+    void search(const QString& word, SearchType type);
 
 signals:
     void stateChanged(State);
@@ -38,12 +38,15 @@ signals:
 protected:
     void changeState(State newState);
 
+    virtual void quickSearch(const std::string& needle) = 0;
+    virtual void subsequentSearch(const std::string& needle) = 0;
+
     static void preQsBc(const std::string& needle, int qsBc[]);
     static bool QS(const std::string& needle, const std::string& haystack, const int qsBc[]);
     static bool SS(const std::string& needle, const std::string& haystack);
 
     // Function buffers several entries and emits them after a short time
-    void emitEntry(const QString& entry);
+    void emitEntry(const std::string& entry);
     // Emits last entries
     void emitLastEntries();
 
@@ -51,7 +54,6 @@ protected:
 
 protected: // fields
     std::atomic<State> mState;
-
     std::list<QString> mBuffer;
 
 };

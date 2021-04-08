@@ -5,6 +5,22 @@ Dictionary::Dictionary(QObject* parent)
     , mState(State::DONE)
 {}
 
+void Dictionary::search(const QString& needle, Dictionary::SearchType type)
+{
+    if (mState == State::SEARCH)
+        return;
+
+    changeState(State::SEARCH);
+
+    if (type == SearchType::QUICK)
+        this->quickSearch(needle.toStdString());
+    else
+        this->subsequentSearch(needle.toStdString());
+
+    changeState(State::DONE);
+
+}
+
 void Dictionary::changeState(Dictionary::State newState)
 {
     if(mState != newState) {
@@ -47,11 +63,11 @@ bool Dictionary::SS(const std::string& needle, const std::string& haystack)
     return false;
 }
 
-void Dictionary::emitEntry(const QString& entry)
+void Dictionary::emitEntry(const std::string& entry)
 {
     static auto ts1 = std::chrono::steady_clock::now();
 
-    mBuffer.push_back(entry);
+    mBuffer.push_back(QString::fromLocal8Bit(entry.c_str()));
 
     if (std::chrono::steady_clock::now() - ts1 > RESULT_EMISSION_DELAY) {
         QString blob = mBuffer.front();
