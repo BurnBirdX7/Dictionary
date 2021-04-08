@@ -29,13 +29,8 @@ void MemDictionary::quickSearch(const std::string& needle, int seed)
             break;
 
         if (QS(needle, word, qsBc))
-            emitEntry(word);
+            addResult(word);
     }
-
-    if (mSeed.load() == seed)
-        emitLastEntries();
-    else
-        wipeLastEntries();
 }
 
 void MemDictionary::subsequentSearch(const std::string& needle, int seed)
@@ -45,11 +40,6 @@ void MemDictionary::subsequentSearch(const std::string& needle, int seed)
             break;
 
         if (SS(needle, word))
-            emitEntry(word);
+            addResult(word);
     }
-
-    if (mSeed.load() == seed)
-        emitLastEntries();
-    else
-        wipeLastEntries();
 }

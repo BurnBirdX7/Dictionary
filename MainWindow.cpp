@@ -6,6 +6,7 @@ MainWindow::MainWindow(Dictionary* dictionary, QWidget* parent)
         , mUi(new Ui::MainWindow)
         , mDictionary(dictionary)
         , mDictionaryThread(this)
+        , mUpdateTimer(new QTimer(this))
 {
     mUi->setupUi(this);
     connect(mUi->inputEdit, &QLineEdit::textEdited, this, &MainWindow::initiateSearch);
@@ -13,14 +14,15 @@ MainWindow::MainWindow(Dictionary* dictionary, QWidget* parent)
         this->initiateSearch(this->mUi->inputEdit->text());
     } );
 
+    // Dictionary:
     mDictionary->moveToThread(&mDictionaryThread);
     connect(&mDictionaryThread, &QThread::finished, mDictionary, &QObject::deleteLater);
-
     connect(mDictionary, &Dictionary::stateChanged, this, &MainWindow::searchStateChanged);
-    connect(mDictionary, &Dictionary::wordFound, this, &MainWindow::addResultEntry);
     connect(this, &MainWindow::search, mDictionary, &Dictionary::search);
 
     mDictionaryThread.start();
+
+    mUpdateTimer->start(100);
 }
 
 MainWindow::~MainWindow()
@@ -30,16 +32,16 @@ MainWindow::~MainWindow()
     mDictionaryThread.wait();
 }
 
-void MainWindow::initiateSearch(QString searchLine)
+void MainWindow::initiateSearch(const QString& searchLine)
 {
     if (searchLine.isEmpty()) {
-        mDictionary->getNewSeed(); // Cancel last search
-        mUi->statusbar->showMessage(QStringLiteral("Input field is empty!"));
+        mDictionary->getNewSeed(); // Cancel the last search
+        mDictionary->wipeResults(); // Wipe results of that search
         mUi->resultEdit->clear();
         return;
     }
 
-    this->clearResults();
+    mDictionary->wipeResults(); // Wipe previous search's results
     Dictionary::SearchType type;
     if (mUi->subsequentCheckBox->checkState() == Qt::Checked)
         type = Dictionary::SearchType::SUBSEQUENT;
@@ -49,24 +51,21 @@ void MainWindow::initiateSearch(QString searchLine)
     emit search(searchLine, type, mDictionary->getNewSeed());
 }
 
-void MainWindow::addResultEntry(const QString& entry)
+void MainWindow::updateResults()
 {
-    mUi->resultEdit->appendPlainText(entry);
-}
-
-void MainWindow::clearResults()
-{
-    mUi->resultEdit->clear();
+    auto locker = mDictionary->getResultsLocker();
+    mUi->resultEdit->setPlainText(mDictionary->getResults());
 }
 
 void MainWindow::searchStateChanged(Dictionary::State newState)
 {
     if (newState == Dictionary::State::SEARCH) {
-        mUi->subsequentCheckBox->setEnabled(false);
         mUi->statusbar->showMessage("Searching...");
+        connect(mUpdateTimer, &QTimer::timeout, this, &MainWindow::updateResults);
     }
     else {
-        mUi->subsequentCheckBox->setEnabled(true);
         mUi->statusbar->showMessage("Done.");
+        disconnect(mUpdateTimer, &QTimer::timeout, this, &MainWindow::updateResults);
+        updateResults();
     }
 }

@@ -5,23 +5,38 @@ Dictionary::Dictionary(QObject* parent)
     , mState(State::DONE)
 {}
 
-
-
 int Dictionary::getNewSeed()
 {
     return ++mSeed;
 }
 
+QString Dictionary::getResults() const
+{
+    return mResults;
+}
+
+void Dictionary::wipeResults()
+{
+    auto locker = getResultsLocker();
+    mResults.clear();
+}
+
+Dictionary::ResultsLocker Dictionary::getResultsLocker()
+{
+    return ResultsLocker(mResultsMutex);
+}
+
 void Dictionary::search(const QString& needle, Dictionary::SearchType type, int seed)
 {
     QEventLoop loop; // Wait some time before starting
-    QTimer::singleShot(100, &loop, &QEventLoop::quit);
+    QTimer::singleShot(50, &loop, &QEventLoop::quit);
     loop.exec();
 
     if (mSeed.load() != seed)
         return; // If seed was reassigned, cancel search
 
     changeState(State::SEARCH);
+    wipeResults();
 
     if (type == SearchType::QUICK)
         this->quickSearch(needle.toStdString(), seed);
@@ -74,38 +89,10 @@ bool Dictionary::SS(const std::string& needle, const std::string& haystack)
     return false;
 }
 
-void Dictionary::emitEntry(const std::string& entry)
+void Dictionary::addResult(const std::string& result)
 {
-    static auto ts1 = std::chrono::steady_clock::now();
-
-    mBuffer.push_back(QString::fromStdString(entry));
-
-    if (std::chrono::steady_clock::now() - ts1 > RESULT_EMISSION_DELAY) {
-        QString blob = mBuffer.front();
-
-        for (auto it = ++mBuffer.begin(); it != mBuffer.end(); ++it)
-            blob += "\n" + *it;
-
-        emit wordFound(blob);
-        mBuffer.clear();
-        ts1 = std::chrono::steady_clock::now();
-    }
-
-}
-
-void Dictionary::emitLastEntries()
-{
-    if (!mBuffer.empty()) {
-        QString blob = mBuffer.front();
-        for (auto it = ++mBuffer.begin(); it != mBuffer.end(); ++it)
-            blob += "\n" + *it;
-
-        emit wordFound(blob);
-        mBuffer.clear();
-    }
-}
-
-void Dictionary::wipeLastEntries()
-{
-    mBuffer.clear();
+    auto locker = getResultsLocker();
+    if(!mResults.isEmpty())
+        mResults.append('\n');
+    mResults.append(QString::fromStdString(result));
 }

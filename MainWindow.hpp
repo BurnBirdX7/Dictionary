@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QThread>
+#include <QTimer>
 
 #include "Dictionary.hpp"
 
@@ -21,11 +22,8 @@ public:
     ~MainWindow() override;
 
 public slots:
-    void initiateSearch(QString searchLine);
-
-    void addResultEntry(const QString& entry);
-    void clearResults();
-
+    void initiateSearch(const QString& searchLine);
+    void updateResults();
     void searchStateChanged(Dictionary::State newState);
 
 signals:
@@ -33,6 +31,7 @@ signals:
 
 private:
     Ui::MainWindow* mUi;
+    QTimer* mUpdateTimer;
     Dictionary* mDictionary;
     QThread mDictionaryThread;
 

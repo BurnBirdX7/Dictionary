@@ -25,15 +25,10 @@ void FileDictionary::quickSearch(const std::string& needle, int seed)
 
         std::getline(mStream, word);
         if (QS(needle, word, qsBc))
-            emitEntry(word);
+            addResult(word);
     }
 
-    // Finish job:
     mStream.close();
-    if (mSeed.load() == seed)
-        emitLastEntries(); // Emit last entries only if original seed is preserved
-    else
-        wipeLastEntries();
 }
 
 void FileDictionary::subsequentSearch(const std::string& needle, int seed)
@@ -51,15 +46,10 @@ void FileDictionary::subsequentSearch(const std::string& needle, int seed)
 
         std::getline(mStream, word);
         if (SS(needle, word))
-            emitEntry(word);
+            addResult(word);
     }
 
-    // Finish job:
     mStream.close();
-    if (mSeed.load() == seed)
-        emitLastEntries();
-    else
-        wipeLastEntries();
 }
 
 bool FileDictionary::openStream()

@@ -5,6 +5,7 @@
 #include <atomic>
 #include <string>
 #include <list>
+#include <mutex>
 
 #include <QObject>
 #include <QTimer>
@@ -19,6 +20,8 @@ class Dictionary
 Q_OBJECT
 
 public:
+    using ResultsLocker = std::lock_guard<std::mutex>;
+
     enum class State : char {
         SEARCH, DONE
     };
@@ -28,18 +31,17 @@ public:
 
     explicit Dictionary(QObject* parent = nullptr);
 
-    constexpr static auto RESULT_EMISSION_DELAY = std::chrono::milliseconds(100);
-    constexpr static auto FILE_IS_NOT_REGULAR = "Specified dictionary file does not exist or "
-                                                "not a regular file: ";
-
     int getNewSeed();
+    QString getResults() const; // You have to acquire ResultsLocker
+    void wipeResults();
+
+    ResultsLocker getResultsLocker();
 
 public slots:
     void search(const QString& word, Dictionary::SearchType type, int seed);
 
 signals:
     void stateChanged(Dictionary::State);
-    void wordFound(QString);
 
 protected:
     void changeState(State newState);
@@ -51,19 +53,18 @@ protected:
     static bool QS(const std::string& needle, const std::string& haystack, const int qsBc[]);
     static bool SS(const std::string& needle, const std::string& haystack);
 
-    // Function buffers several entries and emits them after a short time
-    void emitEntry(const std::string& entry);
+    void addResult(const std::string& result);
 
-    void emitLastEntries();
-
-    void wipeLastEntries();
-
-    const static size_t ASIZE = 256; // Alphabet's size | Assume ASCII
+    const static size_t ASIZE = 256; // Alphabet's size
+    constexpr static auto RESULT_EMISSION_DELAY = std::chrono::milliseconds(100);
+    constexpr static auto FILE_IS_NOT_REGULAR = "Specified dictionary file does not exist or "
+                                                "not a regular file: ";
 
 protected: // fields
     std::atomic<State> mState;
     std::atomic<int> mSeed;
-    std::list<QString> mBuffer;
+    std::mutex mResultsMutex;
+    QString mResults;
 
 };
 
