@@ -15,8 +15,8 @@ public:
     explicit MemDictionary(const QString& filename, QObject* parent = nullptr);
 
 private:
-    void quickSearch(const std::string& needle) override;
-    void subsequentSearch(const std::string& needle) override;
+    void quickSearch(const std::string& needle, int seed) override;
+    void subsequentSearch(const std::string& needle, int seed) override;
 
     std::list<std::string> mDic;
 

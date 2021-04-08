@@ -19,23 +19,37 @@ MemDictionary::MemDictionary(const QString& sourceFile, QObject* parent)
     stream.close();
 }
 
-void MemDictionary::quickSearch(const std::string& needle)
+void MemDictionary::quickSearch(const std::string& needle, int seed)
 {
     int qsBc[ASIZE];
     preQsBc(needle, qsBc);
 
-    for (const auto& word: mDic)
+    for (const auto& word: mDic) {
+        if (mSeed.load() != seed)
+            break;
+
         if (QS(needle, word, qsBc))
             emitEntry(word);
+    }
 
-    emitLastEntries();
+    if (mSeed.load() == seed)
+        emitLastEntries();
+    else
+        wipeLastEntries();
 }
 
-void MemDictionary::subsequentSearch(const std::string& needle)
+void MemDictionary::subsequentSearch(const std::string& needle, int seed)
 {
-    for (const auto& word: mDic)
+    for (const auto& word: mDic) {
+        if (mSeed.load() != seed)
+            break;
+
         if (SS(needle, word))
             emitEntry(word);
+    }
 
-    emitLastEntries();
+    if (mSeed.load() == seed)
+        emitLastEntries();
+    else
+        wipeLastEntries();
 }

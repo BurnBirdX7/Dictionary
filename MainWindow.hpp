@@ -21,7 +21,7 @@ public:
     ~MainWindow() override;
 
 public slots:
-    void on_searchButton_clicked();
+    void onSearchButtonClicked();
 
     void addResultEntry(const QString& entry);
     void clearResults();
@@ -29,10 +29,11 @@ public slots:
     void searchStateChanged(Dictionary::State newState);
 
 signals:
-    void search(QString, Dictionary::SearchType);
+    void search(QString, Dictionary::SearchType, int);
 
 private:
     Ui::MainWindow* mUi;
+    Dictionary* mDictionary;
     QThread mDictionaryThread;
 
 };

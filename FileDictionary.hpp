@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <fstream>
 
+
 class FileDictionary
         : public Dictionary
 {
@@ -17,8 +18,8 @@ public:
     explicit FileDictionary(const QString& sourceFile, QObject* parent = nullptr);
 
 private:
-    void quickSearch(const std::string& needle) override;
-    void subsequentSearch(const std::string& needle) override;
+    void quickSearch(const std::string& needle, int seed) override;
+    void subsequentSearch(const std::string& needle, int seed) override;
 
     bool openStream();
 

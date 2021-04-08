@@ -4,15 +4,18 @@
 MainWindow::MainWindow(Dictionary* dictionary, QWidget* parent)
         : QMainWindow(parent)
         , mUi(new Ui::MainWindow)
+        , mDictionary(dictionary)
         , mDictionaryThread(this)
 {
     mUi->setupUi(this);
-    dictionary->moveToThread(&mDictionaryThread);
-    connect(&mDictionaryThread, &QThread::finished, dictionary, &QObject::deleteLater);
+    connect(mUi->searchButton, &QPushButton::clicked, this, &MainWindow::onSearchButtonClicked);
 
-    connect(dictionary, &Dictionary::stateChanged, this, &MainWindow::searchStateChanged);
-    connect(dictionary, &Dictionary::wordFound, this, &MainWindow::addResultEntry);
-    connect(this, &MainWindow::search, dictionary, &Dictionary::search);
+    mDictionary->moveToThread(&mDictionaryThread);
+    connect(&mDictionaryThread, &QThread::finished, mDictionary, &QObject::deleteLater);
+
+    connect(mDictionary, &Dictionary::stateChanged, this, &MainWindow::searchStateChanged);
+    connect(mDictionary, &Dictionary::wordFound, this, &MainWindow::addResultEntry);
+    connect(this, &MainWindow::search, mDictionary, &Dictionary::search);
 
     mDictionaryThread.start();
 }
@@ -24,7 +27,7 @@ MainWindow::~MainWindow()
     mDictionaryThread.wait();
 }
 
-void MainWindow::on_searchButton_clicked()
+void MainWindow::onSearchButtonClicked()
 {
     auto text = mUi->inputEdit->text();
     if (text.isEmpty()) {
@@ -39,7 +42,7 @@ void MainWindow::on_searchButton_clicked()
     else
         type = Dictionary::SearchType::QUICK;
 
-    emit search(text, type);
+    emit search(text, type, mDictionary->getNewSeed());
 }
 
 void MainWindow::addResultEntry(const QString& entry)

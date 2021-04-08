@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
 
-    qRegisterMetaType<Dictionary::State>("State");
+    qRegisterMetaType<Dictionary::State>("Dictionary::State");
     qRegisterMetaType<Dictionary::SearchType>("Dictionary::SearchType");
 
     // Dictionary

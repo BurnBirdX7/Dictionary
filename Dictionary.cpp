@@ -5,17 +5,24 @@ Dictionary::Dictionary(QObject* parent)
     , mState(State::DONE)
 {}
 
-void Dictionary::search(const QString& needle, Dictionary::SearchType type)
+
+
+int Dictionary::getNewSeed()
 {
-    if (mState == State::SEARCH)
-        return;
+    return ++mSeed;
+}
+
+void Dictionary::search(const QString& needle, Dictionary::SearchType type, int seed)
+{
+    if (mSeed.load() != seed)
+        return; // If seed was reassigned, cancel search
 
     changeState(State::SEARCH);
 
     if (type == SearchType::QUICK)
-        this->quickSearch(needle.toStdString());
+        this->quickSearch(needle.toStdString(), seed);
     else
-        this->subsequentSearch(needle.toStdString());
+        this->subsequentSearch(needle.toStdString(), seed);
 
     changeState(State::DONE);
 
@@ -92,4 +99,9 @@ void Dictionary::emitLastEntries()
         emit wordFound(blob);
         mBuffer.clear();
     }
+}
+
+void Dictionary::wipeLastEntries()
+{
+    mBuffer.clear();
 }
