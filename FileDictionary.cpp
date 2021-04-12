@@ -15,8 +15,8 @@ void FileDictionary::quickSearch(const std::string& needle, int seed)
         return;
     }
 
-    int qsBc[ASIZE];
-    preQsBc(needle, qsBc);
+    int qsBc[ALPHABET_SIZE];
+    quickSearchPreprocessing(needle, qsBc);
 
     std::string word;
     while (!mStream.eof()) {
@@ -24,14 +24,14 @@ void FileDictionary::quickSearch(const std::string& needle, int seed)
             break; // Cancel job
 
         std::getline(mStream, word);
-        if (QS(needle, word, qsBc))
+        if (quickSearchImplementation(needle, word, qsBc))
             addResult(word);
     }
 
     mStream.close();
 }
 
-void FileDictionary::subsequentSearch(const std::string& needle, int seed)
+void FileDictionary::sequenceSearch(const std::string& needle, int seed)
 {
     if (!openStream()) {
         showCantOpenError();
@@ -45,7 +45,7 @@ void FileDictionary::subsequentSearch(const std::string& needle, int seed)
             break; // Cancel job
 
         std::getline(mStream, word);
-        if (SS(needle, word))
+        if (sequenceSearchImplementation(needle, word))
             addResult(word);
     }
 

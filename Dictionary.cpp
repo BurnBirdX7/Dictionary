@@ -41,7 +41,7 @@ void Dictionary::search(const QString& needle, Dictionary::SearchType type, int 
     if (type == SearchType::QUICK)
         this->quickSearch(needle.toStdString(), seed);
     else
-        this->subsequentSearch(needle.toStdString(), seed);
+        this->sequenceSearch(needle.toStdString(), seed);
 
     changeState(State::DONE);
 
@@ -55,15 +55,23 @@ void Dictionary::changeState(Dictionary::State newState)
     }
 }
 
-void Dictionary::preQsBc(const std::string& needle, int qsBc[]) {
+void Dictionary::addResult(const std::string& result)
+{
+    auto locker = getResultsLocker();
+    if(!mResults.isEmpty())
+        mResults.append('\n');
+    mResults.append(QString::fromStdString(result));
+}
+
+void Dictionary::quickSearchPreprocessing(const std::string& needle, int * qsBc) {
     int m = static_cast<int>(needle.length());
-    for (int i = 0; i < ASIZE; ++i)
+    for (int i = 0; i < ALPHABET_SIZE; ++i)
         qsBc[i] = m + 1;
     for (int i = 0; i < m; ++i)
         qsBc[needle[i]] = m - i;
 }
 
-bool Dictionary::QS(const std::string& needle, const std::string& haystack, const int qsBc[]) {
+bool Dictionary::quickSearchImplementation(const std::string& needle, const std::string& haystack, const int* qsBc) {
     int m = static_cast<int>(needle.length());
     int n = static_cast<int>(haystack.length());
     for (int j = 0; j <= n - m; j += qsBc[static_cast<unsigned char>(haystack[j + m])])
@@ -73,7 +81,7 @@ bool Dictionary::QS(const std::string& needle, const std::string& haystack, cons
     return false;
 }
 
-bool Dictionary::SS(const std::string& needle, const std::string& haystack)
+bool Dictionary::sequenceSearchImplementation(const std::string& needle, const std::string& haystack)
 {
     size_t m = needle.length();
     if (haystack.length() < m)
@@ -87,12 +95,4 @@ bool Dictionary::SS(const std::string& needle, const std::string& haystack)
     }
 
     return false;
-}
-
-void Dictionary::addResult(const std::string& result)
-{
-    auto locker = getResultsLocker();
-    if(!mResults.isEmpty())
-        mResults.append('\n');
-    mResults.append(QString::fromStdString(result));
 }

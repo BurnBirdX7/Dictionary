@@ -1,3 +1,4 @@
+[Русский](./README_ru.md)
 # Dictionary
 
 Searches entries of a substring in a given dictionary
@@ -44,9 +45,8 @@ The order of arguments is important.\
 * on Windows 10, MSVC 2019, with Qt 5.15.2 and Qt 6.0.3
 * on Ubuntu 20.04, g++ 9.3.0, with Qt 6.0.3
   * with Qt 5, if Qt installed via `apt`
-  
 
-## Algorithm
+## Search Algorithms
 The program uses a simplified version of ~~the Boyer-Moore-Horspool algorithm~~ **the Quick search algorithm**
   for substring detection.
 
@@ -61,9 +61,9 @@ Algorithm has some simplifications:
  * Search runs for **one line**, not the full text
  * When one entry is found, the search stops
 
-In source code: preprocessing - `Dictionary::preQsBc`, search - `Dictionary::QS`
+In source code: preprocessing - `Dictionary::quickSearchPreprocessing`, search - `Dictionary::quickSearchImplementation`
 
 ### Search of sequential characters (optional)
 This search algorithm does not require preprocessing and it's time complexity is *O(n)*
 
-In source code: search - `Dictionary::SS`
+In source code: search - `Dictionary::sequenceSearchImplementation`

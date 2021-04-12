@@ -21,25 +21,25 @@ MemDictionary::MemDictionary(const QString& sourceFile, QObject* parent)
 
 void MemDictionary::quickSearch(const std::string& needle, int seed)
 {
-    int qsBc[ASIZE];
-    preQsBc(needle, qsBc);
+    int qsBc[ALPHABET_SIZE];
+    quickSearchPreprocessing(needle, qsBc);
 
     for (const auto& word: mDic) {
         if (mSeed.load() != seed)
             break;
 
-        if (QS(needle, word, qsBc))
+        if (quickSearchImplementation(needle, word, qsBc))
             addResult(word);
     }
 }
 
-void MemDictionary::subsequentSearch(const std::string& needle, int seed)
+void MemDictionary::sequenceSearch(const std::string& needle, int seed)
 {
     for (const auto& word: mDic) {
         if (mSeed.load() != seed)
             break;
 
-        if (SS(needle, word))
+        if (sequenceSearchImplementation(needle, word))
             addResult(word);
     }
 }

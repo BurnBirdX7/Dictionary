@@ -4,16 +4,16 @@
 #include <stdexcept>
 #include <atomic>
 #include <string>
-#include <list>
 #include <mutex>
 
 #include <QObject>
 #include <QTimer>
 #include <QEventLoop>
 
-// Dictionary is a thread worker
-// It's search() slot can be called multiple times from multiple threads,
-//   but only one at a time will be executed.
+// Dictionary class provides interface and common functionality for different dictionary implementations.
+// (e.g. implementations of search algorithms)
+//
+// has pure virtual methods
 class Dictionary
         : public QObject
 {
@@ -31,11 +31,11 @@ public:
 
     explicit Dictionary(QObject* parent = nullptr);
 
-    int getNewSeed();
-    QString getResults() const; // You have to acquire ResultsLocker
-    void wipeResults();
+    int getNewSeed();           // Getting new seed cancels any ongoing search
+    QString getResults() const; // You have to acquire ResultsLocker first
+    void wipeResults();         // Safe to call without acquiring ResultsLocker
 
-    ResultsLocker getResultsLocker();
+    ResultsLocker getResultsLocker(); // Returns mutex locker
 
 public slots:
     void search(const QString& word, Dictionary::SearchType type, int seed);
@@ -44,19 +44,17 @@ signals:
     void stateChanged(Dictionary::State);
 
 protected:
-    void changeState(State newState);
+    void changeState(State newState);           // changes state if newState is different from the current state
+    void addResult(const std::string& result);  // Adds result to the gettable result string
 
-    virtual void quickSearch(const std::string& needle, int seed) = 0;
-    virtual void subsequentSearch(const std::string& needle, int seed) = 0;
+    virtual void quickSearch(const std::string& needle, int seed) = 0;      // Pure virtual
+    virtual void sequenceSearch(const std::string& needle, int seed) = 0;   // Pure virtual
 
-    static void preQsBc(const std::string& needle, int qsBc[]);
-    static bool QS(const std::string& needle, const std::string& haystack, const int qsBc[]);
-    static bool SS(const std::string& needle, const std::string& haystack);
+    static void quickSearchPreprocessing(const std::string& needle, int * qsBc);
+    static bool quickSearchImplementation(const std::string& needle, const std::string& haystack, const int* qsBc);
+    static bool sequenceSearchImplementation(const std::string& needle, const std::string& haystack);
 
-    void addResult(const std::string& result);
-
-    const static size_t ASIZE = 256; // Alphabet's size
-    constexpr static auto RESULT_EMISSION_DELAY = std::chrono::milliseconds(100);
+    const static size_t   ALPHABET_SIZE = 256;
     constexpr static auto FILE_IS_NOT_REGULAR = "Specified dictionary file does not exist or "
                                                 "not a regular file: ";
 

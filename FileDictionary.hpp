@@ -19,7 +19,7 @@ public:
 
 private:
     void quickSearch(const std::string& needle, int seed) override;
-    void subsequentSearch(const std::string& needle, int seed) override;
+    void sequenceSearch(const std::string& needle, int seed) override;
 
     bool openStream();
 
